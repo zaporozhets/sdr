@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/pyvisa/json
+md5	f3a0c77ee680bd17497da97bf982b732  PyVISA-1.10.0.tar.gz
+sha256	9133a5c1c28ae30c9846d55039a2361ad9f9f9af21920c1b0310145977afc313  PyVISA-1.10.0.tar.gz
+# Locally computed sha256 checksums
+sha256	6b04d4999c3735ad02d8535b85df9bedff691e5de8556c112be8b07e414d1ebc  LICENSE

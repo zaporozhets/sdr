@@ -1,0 +1,5 @@
+# Copy this to a local.mk file in your Buildroot output tree.
+# https://buildroot.org/downloads/manual/manual.html#_using_buildroot_during_development
+
+TI_MPM_OVERRIDE_SRCDIR=/home/taras/dev/dx/mtp220/dev/multi-proc-manager
+#LINUX_OVERRIDE_SRCDIR=/path/to/where/you/cloned/linux

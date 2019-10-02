@@ -1,0 +1,7 @@
+config BR2_PACKAGE_PYTHON_PYVISA
+	bool "python-pyvisa"
+	help
+	  Python VISA bindings for GPIB, RS232, TCPIP and USB
+	  instruments.
+
+	  https://github.com/pyvisa/pyvisa

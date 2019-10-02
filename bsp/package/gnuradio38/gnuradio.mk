@@ -1,0 +1,166 @@
+################################################################################
+#
+# gnuradio
+#
+################################################################################
+
+GNURADIO38_VERSION = 3.8.0.0
+GNURADIO38_SOURCE = gnuradio-$(GNURADIO38_VERSION).tar.gz
+GNURADIO38_SITE = http://gnuradio.org/releases/gnuradio
+GNURADIO38_LICENSE = GPL-3.0+
+GNURADIO38_LICENSE_FILES = COPYING
+
+GNURADIO38_SUPPORTS_IN_SOURCE_BUILD = NO
+
+# host-python-mako and host-python-six are needed for volk to compile
+GNURADIO38_DEPENDENCIES = \
+	host-python-mako \
+	host-python-six \
+	host-swig \
+	boost \
+	mpir \
+	orc
+
+ifeq ($(BR2_PACKAGE_ORC),y)
+GNURADIO38_DEPENDENCIES += orc
+endif
+
+GNURADIO38_CONF_OPTS = \
+	-DBoost_LIBRARY_DIRS="$(STAGING_DIR)/usr/lib" \
+	-DENABLE_DEFAULT=OFF \
+	-DENABLE_VOLK=ON \
+	-DENABLE_GR_BOOST=ON \
+	-DENABLE_GNURADIO_RUNTIME=ON \
+	-DENABLE_GR_QTGUI=OFF \
+	-DXMLTO_EXECUTABLE=NOTFOUND \
+	-DENABLE_PYTHON=OFF
+
+# For third-party blocks, the gnuradio libraries are mandatory at
+# compile time.
+GNURADIO38_INSTALL_STAGING = YES
+
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+GNURADIO38_CONF_OPTS += -DCMAKE_EXE_LINKER_FLAGS=-latomic
+endif
+
+# Yes, this is silly, because -march is already known by the compiler
+# with the internal toolchain, and passed by the external wrapper for
+# external toolchains. Nonetheless, gnuradio does some matching on the
+# CFLAGS to decide whether to build the NEON functions or not, and
+# wants to see the string 'armv7' in the CFLAGS.
+ifeq ($(BR2_ARM_CPU_ARMV7A)$(BR2_ARM_CPU_HAS_NEON),yy)
+GNURADIO38_CONF_OPTS += -DCMAKE_C_FLAGS="$(TARGET_CFLAGS) -march=armv7-a"
+endif
+
+# As soon as -mfpu=neon is supported by the compiler, gnuradio will try
+# to use it. But having NEON support in the compiler doesn't necessarily
+# mean we have NEON support in our CPU.
+ifeq ($(BR2_ARM_CPU_HAS_NEON),)
+GNURADIO38_CONF_OPTS += -Dhave_mfpu_neon=0
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_ANALOG),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_ANALOG=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_ANALOG=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_AUDIO),y)
+ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
+GNURADIO38_DEPENDENCIES += alsa-lib
+endif
+ifeq ($(BR2_PACKAGE_PORTAUDIO),y)
+GNURADIO38_DEPENDENCIES += portaudio
+endif
+GNURADIO38_CONF_OPTS += -DENABLE_GR_AUDIO=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_AUDIO=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_BLOCKS),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_BLOCKS=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_BLOCKS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_CHANNELS),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_CHANNELS=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_CHANNELS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_CTRLPORT),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_CTRLPORT=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_CTRLPORT=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_DIGITAL),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_DIGITAL=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_DIGITAL=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_FEC),y)
+GNURADIO38_DEPENDENCIES += gsl
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FEC=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FEC=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_FFT),y)
+GNURADIO38_DEPENDENCIES += fftw-single
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FFT=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FFT=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_FILTER),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FILTER=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_FILTER=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_LOG),y)
+GNURADIO38_DEPENDENCIES += log4cpp
+GNURADIO38_CONF_OPTS += -DENABLE_GR_LOG=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_LOG=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_PYTHON),y)
+GNURADIO38_DEPENDENCIES += python
+GNURADIO38_CONF_OPTS += -DENABLE_PYTHON=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_PYTHON=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_PAGER),y)
+GNURADIO38_CONF_OPTS += -DENABLE_PAGER=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_PAGER=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_TRELLIS),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_TRELLIS=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_TRELLIS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_UTILS),y)
+GNURADIO38_CONF_OPTS += -DENABLE_GR_UTILS=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_UTILS=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_GNURADIO38_ZEROMQ),y)
+GNURADIO38_DEPENDENCIES += cppzmq
+ifeq ($(BR2_PACKAGE_GNURADIO38_PYTHON),y)
+GNURADIO38_DEPENDENCIES += python-pyzmq
+endif
+GNURADIO38_CONF_OPTS += -DENABLE_GR_ZEROMQ=ON
+else
+GNURADIO38_CONF_OPTS += -DENABLE_GR_ZEROMQ=OFF
+endif
+
+$(eval $(cmake-package))
